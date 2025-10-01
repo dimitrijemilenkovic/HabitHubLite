@@ -8,8 +8,8 @@ import java.time.LocalDate
 data class HabitEntry(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
-    val date: String, // Format: yyyy-MM-dd
-    val waterGlasses: Int = 0, // broj čaša vode
-    val sleepHours: Float = 0f, // sati sna
-    val walkMinutes: Int = 0 // minuti šetnje
+    val date: String,
+    val waterGlasses: Int = 0,
+    val sleepHours: Float = 0f,
+    val walkMinutes: Int = 0
 ) 

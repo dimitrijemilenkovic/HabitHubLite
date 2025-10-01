@@ -1,24 +1,35 @@
 package rs.metropolitan.se330_app.presentation
 
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import rs.metropolitan.se330_app.ui.theme.*
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HabitTrackerScreen(
+    onLogout: () -> Unit = {},
     viewModel: HabitViewModel = hiltViewModel()
 ) {
     val currentDate by viewModel.currentDate.collectAsState()
@@ -26,14 +37,69 @@ fun HabitTrackerScreen(
     val allEntries by viewModel.allEntries.collectAsState()
     
     var selectedTab by remember { mutableStateOf(0) }
+    var showLogoutDialog by remember { mutableStateOf(false) }
+    
+    if (showLogoutDialog) {
+        AlertDialog(
+            onDismissRequest = { showLogoutDialog = false },
+            icon = {
+                Icon(
+                    Icons.Outlined.ExitToApp,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            },
+            title = { Text("Odjava", fontWeight = FontWeight.Bold) },
+            text = { Text("Da li ste sigurni da želite da se odjavite?") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showLogoutDialog = false
+                        onLogout()
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Error
+                    )
+                ) {
+                    Text("Odjavi se")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showLogoutDialog = false }) {
+                    Text("Otkaži")
+                }
+            }
+        )
+    }
     
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Habit Tracker") },
+                title = { 
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.CheckCircle,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                        Text("Habit Tracker", fontWeight = FontWeight.Bold)
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { showLogoutDialog = true }) {
+                        Icon(
+                            Icons.Outlined.Logout,
+                            contentDescription = "Odjavi se",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    titleContentColor = MaterialTheme.colorScheme.onSurface
                 )
             )
         }
@@ -42,32 +108,58 @@ fun HabitTrackerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            TabRow(selectedTabIndex = selectedTab) {
+            TabRow(
+                selectedTabIndex = selectedTab,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.primary
+            ) {
                 Tab(
                     selected = selectedTab == 0,
                     onClick = { selectedTab = 0 },
-                    text = { Text("Danas") }
+                    text = { Text("Danas", fontWeight = if (selectedTab == 0) FontWeight.Bold else FontWeight.Normal) },
+                    icon = { 
+                        Icon(
+                            if (selectedTab == 0) Icons.Filled.Today else Icons.Outlined.Today,
+                            contentDescription = null
+                        ) 
+                    }
                 )
                 Tab(
                     selected = selectedTab == 1,
                     onClick = { selectedTab = 1 },
-                    text = { Text("Istorija") }
+                    text = { Text("Istorija", fontWeight = if (selectedTab == 1) FontWeight.Bold else FontWeight.Normal) },
+                    icon = { 
+                        Icon(
+                            if (selectedTab == 1) Icons.Filled.History else Icons.Outlined.History,
+                            contentDescription = null
+                        ) 
+                    }
                 )
             }
             
-            when (selectedTab) {
-                0 -> TodayScreen(
-                    currentDate = currentDate,
-                    currentEntry = currentEntry,
-                    onWaterChange = viewModel::updateWater,
-                    onSleepChange = viewModel::updateSleep,
-                    onWalkChange = viewModel::updateWalk,
-                    onPreviousDay = viewModel::goToPreviousDay,
-                    onNextDay = viewModel::goToNextDay,
-                    onToday = viewModel::goToToday
-                )
-                1 -> HistoryScreen(entries = allEntries)
+            AnimatedContent(
+                targetState = selectedTab,
+                label = "tab_animation",
+                transitionSpec = {
+                    fadeIn(animationSpec = tween(300)) togetherWith
+                    fadeOut(animationSpec = tween(300))
+                }
+            ) { tab ->
+                when (tab) {
+                    0 -> TodayScreen(
+                        currentDate = currentDate,
+                        currentEntry = currentEntry,
+                        onWaterChange = viewModel::updateWater,
+                        onSleepChange = viewModel::updateSleep,
+                        onWalkChange = viewModel::updateWalk,
+                        onPreviousDay = viewModel::goToPreviousDay,
+                        onNextDay = viewModel::goToNextDay,
+                        onToday = viewModel::goToToday
+                    )
+                    1 -> HistoryScreen(entries = allEntries)
+                }
             }
         }
     }
@@ -90,55 +182,92 @@ fun TodayScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Date Navigator
-        Card(
+        // Date Navigator Card
+        ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
-            )
+            colors = CardDefaults.elevatedCardColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer
+            ),
+            elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp)
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onPreviousDay) {
-                    Icon(Icons.Default.ArrowBack, "Prethodni dan")
+                IconButton(
+                    onClick = onPreviousDay,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.5f))
+                ) {
+                    Icon(Icons.Filled.ArrowBack, "Prethodni dan")
                 }
                 
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(1f)
+                ) {
                     Text(
                         text = currentDate.format(dateFormatter),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     if (!isToday) {
                         TextButton(onClick = onToday) {
+                            Icon(
+                                Icons.Filled.Today,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(Modifier.width(4.dp))
                             Text("Idi na danas")
                         }
+                    } else {
+                        Text(
+                            text = "Danas",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
                     }
                 }
                 
                 IconButton(
                     onClick = onNextDay,
-                    enabled = !isToday
+                    enabled = !isToday,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isToday) Color.Transparent 
+                            else MaterialTheme.colorScheme.surface.copy(alpha = 0.5f)
+                        )
                 ) {
-                    Icon(Icons.Default.ArrowForward, "Sledeći dan")
+                    Icon(
+                        Icons.Filled.ArrowForward,
+                        "Sledeći dan",
+                        tint = if (isToday) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
+                               else MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
         }
         
-        // Habit Cards
-        HabitCard(
-            title = "💧 Voda",
+        // Habit Cards with beautiful gradients
+        ModernHabitCard(
+            title = "Voda",
             value = currentEntry?.waterGlasses ?: 0,
             unit = "čaša",
-            icon = Icons.Default.Place,
+            icon = Icons.Outlined.WaterDrop,
+            gradientColors = listOf(WaterBlue, WaterBlueLight),
             onIncrement = { onWaterChange((currentEntry?.waterGlasses ?: 0) + 1) },
             onDecrement = { 
                 val current = currentEntry?.waterGlasses ?: 0
@@ -146,16 +275,17 @@ fun TodayScreen(
             }
         )
         
-        SleepCard(
+        ModernSleepCard(
             hours = currentEntry?.sleepHours ?: 0f,
             onSleepChange = onSleepChange
         )
         
-        HabitCard(
-            title = "🚶 Šetnja",
+        ModernHabitCard(
+            title = "Šetnja",
             value = currentEntry?.walkMinutes ?: 0,
             unit = "minuta",
-            icon = Icons.Default.DateRange,
+            icon = Icons.Outlined.DirectionsWalk,
+            gradientColors = listOf(WalkGreen, WalkGreenLight),
             onIncrement = { onWalkChange((currentEntry?.walkMinutes ?: 0) + 15) },
             onDecrement = { 
                 val current = currentEntry?.walkMinutes ?: 0
@@ -167,63 +297,135 @@ fun TodayScreen(
 }
 
 @Composable
-fun HabitCard(
+fun ModernHabitCard(
     title: String,
     value: Int,
     unit: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
+    gradientColors: List<Color>,
     onIncrement: () -> Unit,
     onDecrement: () -> Unit,
     step: Int = 1
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+    var isPressed by remember { mutableStateOf(false) }
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.95f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "scale"
+    )
+    
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .scale(scale),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            // Subtle gradient background
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(gradientColors)
+                    )
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.padding(20.dp)
             ) {
-                FilledTonalButton(
-                    onClick = onDecrement,
-                    modifier = Modifier.size(56.dp),
-                    shape = RoundedCornerShape(12.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Icon(Icons.Default.Delete, "Smanji")
-                }
-                
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(
+                                brush = Brush.linearGradient(gradientColors)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            icon,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                     Text(
-                        text = "$value",
-                        style = MaterialTheme.typography.displayMedium,
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = unit,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
                 
-                FilledTonalButton(
-                    onClick = onIncrement,
-                    modifier = Modifier.size(56.dp),
-                    shape = RoundedCornerShape(12.dp)
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Add, "Povećaj")
+                    FilledIconButton(
+                        onClick = onDecrement,
+                        modifier = Modifier.size(56.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    ) {
+                        Icon(Icons.Filled.Remove, "Smanji", modifier = Modifier.size(24.dp))
+                    }
+                    
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        AnimatedContent(
+                            targetState = value,
+                            transitionSpec = {
+                                if (targetState > initialState) {
+                                    slideInVertically { -it } + fadeIn() togetherWith
+                                    slideOutVertically { it } + fadeOut()
+                                } else {
+                                    slideInVertically { it } + fadeIn() togetherWith
+                                    slideOutVertically { -it } + fadeOut()
+                                }
+                            },
+                            label = "value_animation"
+                        ) { targetValue ->
+                            Text(
+                                text = "$targetValue",
+                                style = MaterialTheme.typography.displayMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = gradientColors[0]
+                            )
+                        }
+                        Text(
+                            text = unit,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                    
+                    FilledIconButton(
+                        onClick = onIncrement,
+                        modifier = Modifier.size(56.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = gradientColors[0],
+                            contentColor = Color.White
+                        )
+                    ) {
+                        Icon(Icons.Filled.Add, "Povećaj", modifier = Modifier.size(24.dp))
+                    }
                 }
             }
         }
@@ -231,51 +433,108 @@ fun HabitCard(
 }
 
 @Composable
-fun SleepCard(
+fun ModernSleepCard(
     hours: Float,
     onSleepChange: (Float) -> Unit
 ) {
     var sliderValue by remember(hours) { mutableFloatStateOf(hours) }
     
-    Card(
+    ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
+        Box(
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Text(
-                text = "😴 San",
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(8.dp)
+                    .background(
+                        brush = Brush.horizontalGradient(listOf(SleepPurple, SleepPurpleLight))
+                    )
             )
             
-            Spacer(modifier = Modifier.height(16.dp))
-            
-            Text(
-                text = "${String.format("%.1f", sliderValue)} sati",
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
-            Slider(
-                value = sliderValue,
-                onValueChange = { sliderValue = it },
-                onValueChangeFinished = { onSleepChange(sliderValue) },
-                valueRange = 0f..12f,
-                steps = 23
-            )
-            
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+            Column(
+                modifier = Modifier.padding(20.dp)
             ) {
-                Text("0h", style = MaterialTheme.typography.bodySmall)
-                Text("12h", style = MaterialTheme.typography.bodySmall)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(48.dp)
+                            .clip(CircleShape)
+                            .background(
+                                brush = Brush.linearGradient(listOf(SleepPurple, SleepPurpleLight))
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Outlined.Bedtime,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Text(
+                        text = "San",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(20.dp))
+                
+                AnimatedContent(
+                    targetState = sliderValue,
+                    label = "sleep_hours"
+                ) { value ->
+                    Text(
+                        text = "${String.format("%.1f", value)} sati",
+                        style = MaterialTheme.typography.displayMedium,
+                        fontWeight = FontWeight.Bold,
+                        color = SleepPurple,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                
+                Spacer(modifier = Modifier.height(16.dp))
+                
+                Slider(
+                    value = sliderValue,
+                    onValueChange = { sliderValue = it },
+                    onValueChangeFinished = { onSleepChange(sliderValue) },
+                    valueRange = 0f..12f,
+                    steps = 23,
+                    colors = SliderDefaults.colors(
+                        thumbColor = SleepPurple,
+                        activeTrackColor = SleepPurple,
+                        inactiveTrackColor = SleepPurpleLight.copy(alpha = 0.3f)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(
+                        "0h",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        "12h",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
         }
     }
@@ -285,85 +544,161 @@ fun SleepCard(
 fun HistoryScreen(entries: List<rs.metropolitan.se330_app.data.HabitEntry>) {
     if (entries.isEmpty()) {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             contentAlignment = Alignment.Center
         ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
                 Icon(
-                    Icons.Default.Face,
+                    Icons.Outlined.HistoryToggleOff,
                     contentDescription = null,
-                    modifier = Modifier.size(64.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
                 Text(
                     "Nema unosa još uvek",
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    "Dodajte svoje prve navike!",
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
     } else {
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             contentPadding = PaddingValues(16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(entries) { entry ->
-                HistoryCard(entry)
+                ModernHistoryCard(entry)
             }
         }
     }
 }
 
 @Composable
-fun HistoryCard(entry: rs.metropolitan.se330_app.data.HabitEntry) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+fun ModernHistoryCard(entry: rs.metropolitan.se330_app.data.HabitEntry) {
+    ElevatedCard(
+        modifier = Modifier
+            .fillMaxWidth()
+            .animateContentSize(),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
-            Text(
-                text = entry.date,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Outlined.CalendarToday,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(20.dp)
+                )
+                Text(
+                    text = entry.date,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
             
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
             
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Column {
-                    Text("💧 Voda", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        "${entry.waterGlasses} čaša",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                HabitStat(
+                    icon = Icons.Outlined.WaterDrop,
+                    label = "Voda",
+                    value = "${entry.waterGlasses}",
+                    unit = "čaša",
+                    color = WaterBlue
+                )
                 
-                Column {
-                    Text("😴 San", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        "${String.format("%.1f", entry.sleepHours)} h",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                HabitStat(
+                    icon = Icons.Outlined.Bedtime,
+                    label = "San",
+                    value = String.format("%.1f", entry.sleepHours),
+                    unit = "h",
+                    color = SleepPurple
+                )
                 
-                Column {
-                    Text("🚶 Šetnja", style = MaterialTheme.typography.bodyMedium)
-                    Text(
-                        "${entry.walkMinutes} min",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                HabitStat(
+                    icon = Icons.Outlined.DirectionsWalk,
+                    label = "Šetnja",
+                    value = "${entry.walkMinutes}",
+                    unit = "min",
+                    color = WalkGreen
+                )
             }
+        }
+    }
+}
+
+@Composable
+fun HabitStat(
+    icon: ImageVector,
+    label: String,
+    value: String,
+    unit: String,
+    color: Color
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .clip(CircleShape)
+                .background(color.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                icon,
+                contentDescription = null,
+                tint = color,
+                modifier = Modifier.size(20.dp)
+            )
+        }
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(2.dp),
+            verticalAlignment = Alignment.Bottom
+        ) {
+            Text(
+                text = value,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = color
+            )
+            Text(
+                text = unit,
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 } 

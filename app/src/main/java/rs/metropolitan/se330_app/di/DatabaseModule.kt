@@ -24,12 +24,20 @@ object DatabaseModule {
             context,
             HabitDatabase::class.java,
             "habit_database"
-        ).build()
+        )
+        .fallbackToDestructiveMigration() // Za development; u produkciji koristiti migracije
+        .build()
     }
     
     @Provides
     @Singleton
     fun provideHabitDao(database: HabitDatabase): HabitDao {
         return database.habitDao()
+    }
+    
+    @Provides
+    @Singleton
+    fun provideUserDao(database: HabitDatabase): UserDao {
+        return database.userDao()
     }
 } 

@@ -9,7 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import dagger.hilt.android.AndroidEntryPoint
-import rs.metropolitan.se330_app.presentation.HabitTrackerScreen
+import rs.metropolitan.se330_app.navigation.AppNavGraph
 import rs.metropolitan.se330_app.ui.theme.SE330appTheme
 
 @AndroidEntryPoint
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HabitTrackerScreen()
+                    AppNavGraph()
                 }
             }
         }
