@@ -568,16 +568,6 @@ Lokacija: `app/src/androidTest/`
 - Optimizacije
 - Production API endpoints
 
----
-
-## 🔐 Sigurnost
-
-### Preporuke za Produkciju:
-1. **Password Hashing** - Koristiti BCrypt ili Argon2
-2. **SQL Injection Protection** - Room automatski štiti
-3. **Data Encryption** - Enkriptovati osetljive podatke
-4. **HTTPS** - Za sve API komunikacije
-5. **Token-Based Auth** - Umesto email/password
 
 ---
 
@@ -601,49 +591,13 @@ Za dodavanje novih jezika:
 2. Prevedite sve string resources
 3. Test na različitim lokalizacijama
 
----
 
-## 🚧 Buduća Proširenja
-
-### Planirane Funkcionalnosti:
-- [ ] Export podataka u CSV
-- [ ] Grafički prikaz napretka (Charts)
-- [ ] Push notifikacije za podsetnik
-- [ ] Custom navike
-- [ ] Social sharing
-- [ ] Cloud sync
-- [ ] Widget podrška
-- [ ] Wear OS podrška
-
----
-
-## 📞 Podrška i Kontakt
-
-Za pitanja, bug report-e ili feature request-e:
-- **Email:** [vaš-email@primer.com]
-- **GitHub Issues:** [repository-url/issues]
-
----
-
-## 📄 Licenca
-
-[Stavite svoju licencu ovde]
 
 ---
 
 ## 👥 Autori
 
-**SE330 Tim** - Metropolitan University
+**SE330 Dimitrije Milenkovic
 
 ---
 
-## 🙏 Zahvalnice
-
-- Material Design 3 tim
-- Jetpack Compose community
-- Android Developers
-
----
-
-**Poslednje ažuriranje:** 2. Oktobar 2025
-**Verzija:** 1.0.0 
