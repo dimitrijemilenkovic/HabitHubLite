@@ -3,6 +3,7 @@ package rs.metropolitan.se330_app.presentation.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import rs.metropolitan.se330_app.data.SessionManager
@@ -17,6 +18,7 @@ sealed class AuthState {
     data class Error(val message: String) : AuthState()
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class AuthViewModel @Inject constructor(
     private val userRepository: UserRepository,

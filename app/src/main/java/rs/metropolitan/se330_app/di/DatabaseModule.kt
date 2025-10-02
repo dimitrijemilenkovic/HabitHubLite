@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import rs.metropolitan.se330_app.data.HabitDao
 import rs.metropolitan.se330_app.data.HabitDatabase
+import rs.metropolitan.se330_app.data.UserDao
 import javax.inject.Singleton
 
 @Module

@@ -11,7 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import rs.metropolitan.se330_app.presentation.auth.AuthViewModel
 import rs.metropolitan.se330_app.presentation.auth.LoginScreen
 import rs.metropolitan.se330_app.presentation.auth.RegisterScreen
-import rs.metropolitan.se330_app.presentation.HabitTrackerScreen
+import rs.metropolitan.se330_app.presentation.habit.HabitTrackerScreen
 
 sealed class Screen(val route: String) {
     object Login : Screen("login")

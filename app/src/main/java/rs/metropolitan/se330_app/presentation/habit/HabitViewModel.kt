@@ -1,8 +1,9 @@
-package rs.metropolitan.se330_app.presentation
+package rs.metropolitan.se330_app.presentation.habit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import rs.metropolitan.se330_app.data.HabitEntry
@@ -11,6 +12,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class HabitViewModel @Inject constructor(
     private val repository: HabitRepository

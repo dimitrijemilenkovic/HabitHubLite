@@ -1,4 +1,4 @@
-package rs.metropolitan.se330_app.presentation
+package rs.metropolitan.se330_app.presentation.habit
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -25,7 +25,6 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import rs.metropolitan.se330_app.presentation.habit.HabitViewModel
 import rs.metropolitan.se330_app.ui.theme.*
 import java.time.format.DateTimeFormatter
 
@@ -170,7 +169,7 @@ fun TodayScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // Date Navigator Card
+
         ElevatedCard(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.elevatedCardColors(
@@ -245,7 +244,7 @@ fun TodayScreen(
             }
         }
         
-        // Habit Cards with beautiful gradients
+
         ModernHabitCard(
             title = "Voda",
             value = currentEntry?.waterGlasses ?: 0,

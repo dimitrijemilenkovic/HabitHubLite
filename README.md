@@ -46,8 +46,13 @@ presentation/
 │   ├── AuthViewModel.kt       - ViewModel za autentifikaciju
 │   ├── LoginScreen.kt         - Login UI
 │   └── RegisterScreen.kt      - Registracija UI
-├── HabitViewModel.kt          - ViewModel za business logiku navika
-└── HabitTrackerScreen.kt      - Compose UI komponente za navike
+├── habit/
+│   ├── HabitViewModel.kt      - ViewModel za business logiku navika
+│   └── HabitTrackerScreen.kt  - Main UI sa tabovima (Danas, Istorija, Stats, Profil)
+├── statistics/
+│   └── StatisticsScreen.kt    - Statistika i analiza navika
+└── profile/
+    └── ProfileScreen.kt       - Korisnički profil
 ```
 
 ### Navigation Layer
@@ -115,6 +120,17 @@ navigation/
 - Prikaz svih navika po datumima
 - Prazan state kada nema podataka
 
+### Statistika Ekran - NOVO! 📊
+- **Ukupna statistika** - Zbir svih unosa za svaku naviku
+- **Proseci** - Prosečne vrednosti sa progress barovima
+- **Ciljevi** - Prikaz postignuća sa procentima
+- **Nedeljni pregled** - Kompaktan prikaz poslednjih 7 dana
+
+### Profil Ekran - NOVO! 👤
+- Kružni avatar sa inicijalima
+- Email i korisničke informacije
+- Logout funkcionalnost
+
 ## 🔐 Session Management
 
 - **DataStore Preferences** za čuvanje user ID-a
@@ -162,12 +178,40 @@ Projekat koristi:
 
 - ✅ ~~Login/Register sistem~~ (implementirano)
 - ✅ ~~Session management~~ (implementirano)
-- User profil ekran
+- ✅ ~~User profil ekran~~ (implementirano)
+- ✅ ~~Statistike i grafikoni po korisniku~~ (implementirano)
 - Forgot password funkcionalnost
-- Statistike i grafikoni po korisniku
 - Notifikacije za podsetnik
-- Ciljevi i achievements
+- Detaljnije statistike sa grafovima (Charts library)
+- Custom navike
 - Social features (sharing)
-- Export podataka
+- Export podataka u CSV
 - Biometric authentication
-- Widget za home screen 
+- Widget za home screen
+- Wear OS podrška
+
+## 📚 Dokumentacija
+
+- **[README.md](README.md)** - Osnovni pregled (ovaj fajl)
+- **[DOKUMENTACIJA.md](DOKUMENTACIJA.md)** - Detalna tehnička dokumentacija
+- **[KORISCENJE.md](KORISCENJE.md)** - Vodič za korišćenje
+- **[CHANGELOG.md](CHANGELOG.md)** - Lista promena
+- **[UI_CHANGELOG.md](UI_CHANGELOG.md)** - UI promene
+- **[UI_IMPROVEMENTS.md](UI_IMPROVEMENTS.md)** - UI poboljšanja
+
+## 📁 Struktura Projekta
+
+```
+SE330app/
+├── app/src/main/java/rs/metropolitan/se330_app/
+│   ├── data/              # Data Layer (Room Database, Repositories)
+│   ├── di/                # Dependency Injection (Hilt modules)
+│   ├── navigation/        # Navigation Graph
+│   ├── presentation/      # UI Layer
+│   │   ├── auth/          # Authentication screens
+│   │   ├── habit/         # Habit tracking screens
+│   │   ├── statistics/    # Statistics screen
+│   │   └── profile/       # Profile screen
+│   └── ui/theme/          # Theme & Design System
+└── docs/                  # Dokumentacija fajlovi
+``` 
