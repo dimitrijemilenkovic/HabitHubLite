@@ -165,39 +165,10 @@ Projekat koristi:
 - targetSdk: 36
 - compileSdk: 36
 
-## 🔒 Security Notes
 
-⚠️ **NAPOMENA ZA PRODUKCIJU:**
-- Password-i se trenutno čuvaju kao plain text u bazi
-- Za produkciju koristiti bcrypt ili argon2 za hash-ovanje
-- Dodati JWT tokens ili OAuth za session management
-- Implementirati SSL pinning
-- Dodati ProGuard/R8 obfuscation
 
-## 💡 Dodatne Mogućnosti za Proširenje
 
-- ✅ ~~Login/Register sistem~~ (implementirano)
-- ✅ ~~Session management~~ (implementirano)
-- ✅ ~~User profil ekran~~ (implementirano)
-- ✅ ~~Statistike i grafikoni po korisniku~~ (implementirano)
-- Forgot password funkcionalnost
-- Notifikacije za podsetnik
-- Detaljnije statistike sa grafovima (Charts library)
-- Custom navike
-- Social features (sharing)
-- Export podataka u CSV
-- Biometric authentication
-- Widget za home screen
-- Wear OS podrška
 
-## 📚 Dokumentacija
-
-- **[README.md](README.md)** - Osnovni pregled (ovaj fajl)
-- **[DOKUMENTACIJA.md](DOKUMENTACIJA.md)** - Detalna tehnička dokumentacija
-- **[KORISCENJE.md](KORISCENJE.md)** - Vodič za korišćenje
-- **[CHANGELOG.md](CHANGELOG.md)** - Lista promena
-- **[UI_CHANGELOG.md](UI_CHANGELOG.md)** - UI promene
-- **[UI_IMPROVEMENTS.md](UI_IMPROVEMENTS.md)** - UI poboljšanja
 
 ## 📁 Struktura Projekta
 
